@@ -3,6 +3,7 @@
 #define COLOR_PRINCIPAL GColorWhite  // El color del lápiz es blanco
 #define COLOR_FONDO GColorBlack  // y el fondo, negro
 
+#define MESES_TURNOS 3
 
 static Window *window;
 
@@ -13,11 +14,23 @@ static const char *dias_en_numero[31] =
    "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
    "31"};
 
-static const char *turnos[31] = 
-	{ "L", "T", "AT", "FT", "AM", "L", "AM", "M", "L", "L", 
-   "FM", "T", "T", "T", "T", "T", "AT", "D", "AM", "M", 
-   "M", "M", "M", "M", "D", "T", "T", "T", "T", "T",
-   "AT"};
+static const char *turnos[MESES_TURNOS][31] = {
+	{ "L", "T", "AT", "FT", "AM", "L", "AM", 
+    "M", "L", "L", "FM", "T", "T", "T", 
+    "T", "T", "AT", "D", "AM", "M", "M",
+    "M", "M", "M", "D", "T", "T", "T", 
+    "T", "T", "AT"},
+  { "L", "L", "M", "M", "M", "M", "M", 
+    "V", "V", "V", "V", "V", "V", "V",
+    "V", "V", "V", "V", "M", "M", "M", 
+    "L", "T", "T", "T", "T", "AT", "AT",
+    " ", " ", " "},
+  { "L", "M", "M", "M", "M", "M", "L",
+    "L", "T", "T", "T", "T", "T", "AT",
+    "L", "M", "M", "M", "L", "M", "M", 
+    "L", "T", "T", "T", "T", "T", "AT", 
+    "L", "L", "M"}, 
+};
 
 static const char *nombre_mes[13] = 
 	{ "vacio", "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", 
@@ -135,12 +148,15 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
       if (i > 34) linea = 51;
 
       if (pos>122) pos = 2;
+      
+      if (mes>MESES_TURNOS) chkturnos = 0;
+      
  		  if (i > casilla_salida-1)
         {
         if (((i-casilla_salida+1)==dia_actual) && (mes==mes_actual))
-          graphics_draw_text(ctx, (chkturnos==1)?turnos[i-casilla_salida]:dias_en_numero[i-casilla_salida], fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+          graphics_draw_text(ctx, (chkturnos==1)?turnos[mes-1][i-casilla_salida]:dias_en_numero[i-casilla_salida], fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
         else
-          graphics_draw_text(ctx, (chkturnos==1)?turnos[i-casilla_salida]:dias_en_numero[i-casilla_salida], fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+          graphics_draw_text(ctx, (chkturnos==1)?turnos[mes-1][i-casilla_salida]:dias_en_numero[i-casilla_salida], fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
         }
       pos = pos+20;
 
