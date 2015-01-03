@@ -14,18 +14,21 @@ static const char *dias_en_numero[31] =
    "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
    "31"};
 
-static const char *turnos[MESES_TURNOS][31] = {
-	{ "L", "T", "AT", "FT", "AM", "L", "AM", 
+static const char *turnos[MESES_TURNOS][33] = {
+	{ "2015", "1",
+    "L", "T", "AT", "FT", "AM", "L", "AM", 
     "M", "L", "L", "FM", "T", "T", "T", 
     "T", "T", "AT", "D", "AM", "M", "M",
     "M", "M", "M", "D", "T", "T", "T", 
     "T", "T", "AT"},
-  { "L", "L", "M", "M", "M", "M", "M", 
+  { "2015", "2",
+    "L", "L", "M", "M", "M", "M", "M", 
     "V", "V", "V", "V", "V", "V", "V",
     "V", "V", "V", "V", "M", "M", "M", 
     "L", "T", "T", "T", "T", "AT", "AT",
     " ", " ", " "},
-  { "L", "M", "M", "M", "M", "M", "L",
+  { "2015", "3",
+    "L", "M", "M", "M", "M", "M", "L",
     "L", "T", "T", "T", "T", "T", "AT",
     "L", "M", "M", "M", "L", "M", "M", 
     "L", "T", "T", "T", "T", "T", "AT", 
@@ -149,14 +152,30 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
 
       if (pos>122) pos = 2;
       
+      
+      // Para encontrar el turno correcto busco en toda la matrix TURNOS
+      /*
+      int posicion_turno=99;
+      for (int bucle_matrix=0;bucle_matrix<MESES_TURNOS;bucle_matrix++)
+        {
+        if (((int)turnos[bucle_matrix][0] == ano) && ((int)turnos[bucle_matrix][1] == mes))
+          posicion_turno = bucle_matrix;
+        }
+      
+      if (posicion_turno==99) chkturnos = 0;
+      */
+      
       if (mes>MESES_TURNOS) chkturnos = 0;
+
       
  		  if (i > casilla_salida-1)
         {
+        // Sumo 2 a casilla_salida por que los dos primeros espacios son de año y mes
+        
         if (((i-casilla_salida+1)==dia_actual) && (mes==mes_actual))
-          graphics_draw_text(ctx, (chkturnos==1)?turnos[mes-1][i-casilla_salida]:dias_en_numero[i-casilla_salida], fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+          graphics_draw_text(ctx, (chkturnos==1)?turnos[mes-1][i-casilla_salida+2]:dias_en_numero[i-casilla_salida], fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
         else
-          graphics_draw_text(ctx, (chkturnos==1)?turnos[mes-1][i-casilla_salida]:dias_en_numero[i-casilla_salida], fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+          graphics_draw_text(ctx, (chkturnos==1)?turnos[mes-1][i-casilla_salida+2]:dias_en_numero[i-casilla_salida], fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
         }
       pos = pos+20;
 
@@ -165,7 +184,7 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
 }  // Y termina la función
 
 
-static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
+static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
       mes--;
       if (mes==0) 
         {
@@ -183,7 +202,7 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   layer_mark_dirty(CapaLineas);
 }
 
-static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
+static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
       mes++;
       if (mes==13) 
         {
@@ -229,7 +248,10 @@ static void init()
   ano = tick_time->tm_year+1900;
   chkturnos=1;
   APP_LOG(APP_LOG_LEVEL_DEBUG, "El primer dia del mes %i, del año %i es %i", mes, ano, dweek(ano,mes,dia));    
-
+  for (int bucle_matrix=0;bucle_matrix<MESES_TURNOS;bucle_matrix++)
+   {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Para año %i el valor es %i. Para mes %i, el valor es %i",(int)turnos[bucle_matrix][0],ano,(int)turnos[bucle_matrix][1],mes);
+  }
 
 }
 
