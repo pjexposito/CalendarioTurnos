@@ -1,23 +1,15 @@
 #include "pebble.h"
+#include "funciones.h"  
   
 #define COLOR_PRINCIPAL GColorWhite  // El color del lápiz es blanco
 #define COLOR_FONDO GColorBlack  // y el fondo, negro
 
 #define MESES_TURNOS 3
 
-static Window *window;
-
-
-static const char *dias_en_numero[31] = 
-	{ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
-   "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", 
-   "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
-   "31"};
-
 static const char *turnos[MESES_TURNOS][33] = {
 	{ "2015", "1",
     "L", "T", "AT", "FT", "AM", "L", "AM", 
-    "M", "L", "L", "FM", "T", "T", "T", 
+    "M", "L", "L", "FM", "M", "M", "T", 
     "T", "T", "AT", "D", "AM", "M", "M",
     "M", "M", "M", "D", "T", "T", "T", 
     "T", "T", "AT"},
@@ -41,51 +33,16 @@ static const char *nombre_mes[13] =
 
 int dia, mes, ano, mes_actual, dia_actual, chkturnos;
 
+static Window *window;
+
+
 //Capas del reloj
 Layer *CapaLineas; // La capa principal donde se dibuja el calendario
 
 
-int dweek(int year, int month, int day)
-   {
-     int h,q,m,k,j;
-  static int conv[] = {6,7,1,2,3,4,5,6};
-    if(month == 1)
-    {
-    month = 13;
-    year--;
-    }
-    if (month == 2)
-    {
-      month = 14;
-      year--;
-    }
-    q = day;
-    m = month;
-    k = year % 100;
-    j = year / 100;
-    h = q + 13*(m+1)/5 + k + k/4 + j/4 + 5*j;
-    h = h % 7;
-    return conv[h];
-   }
+
  
-int numero_de_dias(int month, int year)
-  {
-  
-  int numberOfDays;  
-  if (month == 4 || month == 6 || month == 9 || month == 11)  
-  numberOfDays = 30;  
-  else if (month == 2)  
-  { 
-    bool isLeapYear = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);  
-    if (isLeapYear)  
-      numberOfDays = 29;  
-    else  
-      numberOfDays = 28;  
-  }  
-  else  
-    numberOfDays = 31; 
-  return numberOfDays;
-  }
+
 
 
 // Esta función se ejecutará cada vez que se refresque la CapaLineas
@@ -93,13 +50,14 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
 {
 
 
-  // Color del fondo y color del trazo
+    // Color del fondo y color del trazo
     graphics_context_set_stroke_color(ctx, COLOR_PRINCIPAL);
     graphics_context_set_fill_color(ctx, COLOR_PRINCIPAL);
 
     // left, top, anchura, altura
     // 144x168
   
+    // Se pintan las líneas de calendario
     graphics_fill_rect(ctx, GRect(2, 30, 140, 2), 0, GCornerNone);  
 
     graphics_fill_rect(ctx, GRect(2, 50, 140, 2), 0, GCornerNone);  
@@ -109,7 +67,6 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
     graphics_fill_rect(ctx, GRect(2, 130, 140, 1), 0, GCornerNone);  
 
     graphics_fill_rect(ctx, GRect(2, 150, 142, 2), 0, GCornerNone);  
-  
   
     graphics_fill_rect(ctx, GRect(2, 30, 1, 120), 0, GCornerNone); 
 
@@ -122,7 +79,7 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
   
     graphics_fill_rect(ctx, GRect(142, 30, 1, 120), 0, GCornerNone); 
 
-
+    // Se pinta la cabecera con los días de la semana
 		graphics_draw_text(ctx, "L", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(2, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 		graphics_draw_text(ctx, "M", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(22, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 		graphics_draw_text(ctx, "X", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(42, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
@@ -131,52 +88,71 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
 		graphics_draw_text(ctx, "S", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(102, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
  		graphics_draw_text(ctx, "D", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(122, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
     
+    // Pinta el nombre del mes
   	graphics_draw_text(ctx, nombre_mes[mes], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0, 0, 80, 10), GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+    
+    // Pasa el int del año a letra y pinta el año
     char temp[10]  = "";
     snprintf(temp, sizeof(temp), "%d", ano);
-    	graphics_draw_text(ctx, temp, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(90, 0, 50, 10), GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+    graphics_draw_text(ctx, temp, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(90, 0, 50, 10), GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 
+    // Pos es la posición original del primer carácter
     int pos = 2;
     int linea;
+    // La casilla de salida establece dónde está el día 1 de cada mes
     int casilla_salida = dweek(ano,mes,dia)-1;
 
+    // Recorre todos los días del mes para dibujar el calendario
     for (int i = 0; i < numero_de_dias(mes,ano)+casilla_salida; ++i) {
       
-      
+      // Se establecen las posiciones dependiendo del valor de i (de las casillas del calendario)
       if (i > -1 && i < 7) linea = 51;
       if (i > 6 && i<14) linea = 71;
       if (i > 13 && i<21) linea = 91;
       if (i > 20 && i<28) linea = 111;
       if (i > 27 && i<35) linea = 131;
       if (i > 34) linea = 51;
-
+      // Si es la última casilla, vuelve al principio
       if (pos>122) pos = 2;
       
+      // El año y el mes son los dos primeros valores de la matrix TURNOS
+      // Se revisa toda la matriz (con un bucle) buscando si el mes y el año seleccionado tiene un calendario asignado
       
-      // Para encontrar el turno correcto busco en toda la matrix TURNOS
-      /*
+      // Se pasa el año y el mes a string
+      char temp_ano[10];
+      snprintf(temp_ano, 10, "%i",ano);  
+      char temp_mes[10];
+      snprintf(temp_mes, 10, "%i",mes);  
+      // Se establece posicion_turno en un valor alto. Si sigue en valor alto, significa que no existe turno para 
+      // ese mes y ese año
       int posicion_turno=99;
+      
+      // Se inicia el bucle de búsqueda
       for (int bucle_matrix=0;bucle_matrix<MESES_TURNOS;bucle_matrix++)
         {
-        if (((int)turnos[bucle_matrix][0] == ano) && ((int)turnos[bucle_matrix][1] == mes))
+        // Se comparan las primeras posiciones de la matriz TURNOS para ver si el año y el mes existen
+        if ((strcmp(turnos[bucle_matrix][0],temp_ano) == 0) && (strcmp(turnos[bucle_matrix][1],temp_mes) == 0))
+          // Si existe, se guarda la posicion de ese turno con respecto a la matriz (para dibujarlo luego)
           posicion_turno = bucle_matrix;
         }
-      
+      // Si no se han encontrado coincidencias (valor 99), se evita pintar el turno poniendo chkturnos a 0
       if (posicion_turno==99) chkturnos = 0;
-      */
       
-      if (mes>MESES_TURNOS) chkturnos = 0;
-
-      
+      // En este if se mira cual es la casilla de salida y se pinta a partir de ahí. 
  		  if (i > casilla_salida-1)
         {
-        // Sumo 2 a casilla_salida por que los dos primeros espacios son de año y mes
-        
+        // Se convierte el valor de i menos el de la casilla de salida (menos un ajuste) a string para pintarlo
+        // en el calendario
+        char str_dias[10];
+        snprintf(str_dias, 10, "%i",i-casilla_salida+1);  
+        // A continuación se comprueba si el día del bucle es el día actual. En caso afirmativo, se pinta
+        // ese día en negrita
         if (((i-casilla_salida+1)==dia_actual) && (mes==mes_actual))
-          graphics_draw_text(ctx, (chkturnos==1)?turnos[mes-1][i-casilla_salida+2]:dias_en_numero[i-casilla_salida], fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+          graphics_draw_text(ctx, (chkturnos==1)?turnos[posicion_turno][i-casilla_salida+2]:str_dias, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
         else
-          graphics_draw_text(ctx, (chkturnos==1)?turnos[mes-1][i-casilla_salida+2]:dias_en_numero[i-casilla_salida], fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+          graphics_draw_text(ctx, (chkturnos==1)?turnos[posicion_turno][i-casilla_salida+2]:str_dias, fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
         }
+      // Se suma 20 a pos para saltar al siguiente cuadro y se continúa el bucle
       pos = pos+20;
 
   }
@@ -192,6 +168,7 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
         ano--;
       }
   layer_mark_dirty(CapaLineas);
+  // Se resta un mes al actual y si el mes es inferior a 1, se resta un año
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -200,6 +177,7 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   else
     chkturnos=1;
   layer_mark_dirty(CapaLineas);
+  // Se usa el select para cambiar entre calendario normal y de turnos
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -210,6 +188,7 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
         ano++;
       }
   layer_mark_dirty(CapaLineas);
+  // Se suma un mes al actual, y si supera el 12, se suma un año
 }
 
 static void click_config_provider(void *context) {
@@ -238,7 +217,7 @@ static void init()
   layer_add_child(window_layer, CapaLineas); 
   
   
-  //funcion para saber el día de la semana
+  //funcion para saber el día, el mes y el año actual
   time_t now = time(NULL);
   struct tm *tick_time = localtime(&now);  
   dia=1;
@@ -246,12 +225,10 @@ static void init()
   mes = tick_time->tm_mon+1;
   mes_actual = mes;
   ano = tick_time->tm_year+1900;
+  
+  // Se establece chkturnos a 1 para mostrar el calendario de turnos en primer lugar. Si es 0, se muestran los días
   chkturnos=1;
   APP_LOG(APP_LOG_LEVEL_DEBUG, "El primer dia del mes %i, del año %i es %i", mes, ano, dweek(ano,mes,dia));    
-  for (int bucle_matrix=0;bucle_matrix<MESES_TURNOS;bucle_matrix++)
-   {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Para año %i el valor es %i. Para mes %i, el valor es %i",(int)turnos[bucle_matrix][0],ano,(int)turnos[bucle_matrix][1],mes);
-  }
 
 }
 
