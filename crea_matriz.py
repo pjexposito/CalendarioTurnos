@@ -39,10 +39,12 @@ with con:
           cadena = cadena[:len(cadena)-2] + "}, " +  "{\"" + ano +"\", \"" + mes + "\", \"" + este_dia + "_" + este_turno + "\", "
           calendarios = calendarios+1
 
+
 cadena = cadena[3:len(cadena)-2] + "}, };"	
 cadena = "static const char *turnos[MESES_TURNOS][33] = {" + cadena	  
+print ("#define MESES_TURNOS "+ str(calendarios))
+
 print (cadena)
-print (calendarios)
 #print row[1][4:6], row[1][6:8], row[18], row[19]
 #print(calendar.month(2015,01))
-print(calendar.monthrange(2015,1)[1])
+#print(calendar.monthrange(2015,1)[1])
