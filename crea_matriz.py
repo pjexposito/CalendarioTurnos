@@ -69,10 +69,18 @@ cadena = cadena[3:len(cadena)-2] + "}, \n};"
 cadena = "static const char *turnos[MESES_TURNOS][33] = {" + cadena
 
 # Y aquí ya se imprime todo. Primero el define y el se cuentan todos los calendarios que suman el array
-print ("#define MESES_TURNOS "+ str(calendarios))
+#print ("#define MESES_TURNOS "+ str(calendarios) + "\n")
 
 # Y para terminar, se pinta el array
-print (cadena)
+#print (cadena)
+
+# Se crea el archivo y se pinta todo
+print ("Creando archivo...")
+file = open("matrizturnos.h", "w")
+file.write("#define MESES_TURNOS "+ str(calendarios) + "\n" +"\n")
+file.write(cadena+"\n")
+print ("Archivo \"matrizturnos.h\" creado.")
+
 
 # Todo lo siguiente es código de depuración que no sirve para nada. Por eso se queda así.
 #print row[1][4:6], row[1][6:8], row[18], row[19]
