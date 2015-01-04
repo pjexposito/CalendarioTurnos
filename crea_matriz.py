@@ -28,15 +28,15 @@ with con:
         este_turno = row[19] 
         if ano == este_ano:
           if mes == este_mes:
-            cadena = cadena + "\"" + este_dia + "_" + este_turno + "\", "
+            cadena = cadena + "\"" + este_turno + "\", "
           else:
             mes = este_mes
             calendarios = calendarios+1
-            cadena = cadena[:len(cadena)-2] + "}, " + "{\"" + ano +"\", \"" + mes + "\", \""+ este_dia + "_" +este_turno + "\", "
+            cadena = cadena[:len(cadena)-2] + "}, " + "{\"" + ano +"\", \"" + mes + "\", \"" + este_turno + "\", "
         else:
           ano = este_ano
           mes = este_mes
-          cadena = cadena[:len(cadena)-2] + "}, " +  "{\"" + ano +"\", \"" + mes + "\", \"" + este_dia + "_" + este_turno + "\", "
+          cadena = cadena[:len(cadena)-2] + "}, " +  "{\"" + ano +"\", \"" + mes + "\", \"" + este_turno + "\", "
           calendarios = calendarios+1
 
 
