@@ -6,9 +6,17 @@
 import sqlite3 as lite
 import sys
 import calendar
+import urllib
+import os
 
-
-
+print("Iniciando script...")
+if os.path.isfile("ShiftCal.db"):
+    print("Eliminando versiones anteriores")
+    os.remove("ShiftCal.db")
+print ("Descargando base de datos desde Dropbox...")
+basededatos = urllib.URLopener()
+basededatos.retrieve("https://dl.dropboxusercontent.com/u/119376/ShiftCal.db", "ShiftCal.db")
+print ("Base de datos descargada. Creando archivo...")
 con = lite.connect('ShiftCal.db')
 cadena = ""
 calendarios = 0
@@ -75,7 +83,9 @@ cadena = "static const char *turnos[MESES_TURNOS][33] = {" + cadena
 #print (cadena)
 
 # Se crea el archivo y se pinta todo
-print ("Creando archivo...")
+if os.path.isfile("matrizturnos.h"):
+    print("Eliminando versiones anteriores")
+    os.remove("matrizturnos.h")
 file = open("matrizturnos.h", "w")
 file.write("#define MESES_TURNOS "+ str(calendarios) + "\n" +"\n")
 file.write(cadena+"\n")
