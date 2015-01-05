@@ -10,7 +10,9 @@ rm ShiftCal.db
 echo "Creando ejecutable para Pebble"
 pebble clean > /dev/null 2>&1
 pebble build > /dev/null 2>&1
-echo "Ejecutable creado. Limpiando..."
+echo "Ejecutable creado. Instalando..."
+pebble install --phone  10.0.1.3
+echo "Instalado. Limpiando..."
 mv ./build/calendario_de_turnos.pbw ./calendario_de_turnos.pbw
 pebble clean > /dev/null 2>&1
 echo "Finalizado. El archivo calendario_de_turnos.pbw ha sido creado"
