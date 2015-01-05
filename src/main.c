@@ -6,6 +6,13 @@
 #define COLOR_FONDO GColorBlack  // y el fondo, negro
 
   
+// Matriz de turnos. Se compone de dos dimensiones. La primera marca los meses incluidos en la matrix.
+// Si hay 4 meses de turnos, MESES_TURNOS será 4. Cada turno se marca entre corchetes, como elemento de 
+// la matriz. 
+// La segunda dimensión son los días (o elementos de la matriz MESES_TURNOS). Se compone de 33 elementos.
+// Estos 33 elementos son la suma de los días máximos del mes (31) junto con dos valores iniciales correspondientes
+// al año y al mes al que pertenece la matriz de turnos. Estos valores se usarán más adelante para saber si el
+// mes seleccionado consta de matriz de turnos o no.
 
 
 // Matriz básica para transformar el número de mes en el nombre del mes.
@@ -45,7 +52,7 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
     graphics_fill_rect(ctx, GRect(2, 90, 140, 1), 0, GCornerNone);  
     graphics_fill_rect(ctx, GRect(2, 110, 140, 1), 0, GCornerNone);  
     graphics_fill_rect(ctx, GRect(2, 130, 140, 1), 0, GCornerNone);  
-    graphics_fill_rect(ctx, GRect(2, 150, 142, 2), 0, GCornerNone);  
+    graphics_fill_rect(ctx, GRect(2, 150, 141, 2), 0, GCornerNone);  
     
     // Lineas verticales
     graphics_fill_rect(ctx, GRect(2, 30, 1, 120), 0, GCornerNone); 
@@ -67,12 +74,12 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
  		graphics_draw_text(ctx, "D", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(122, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
     
     // Pinta el nombre del mes
-  	graphics_draw_text(ctx, nombre_mes[mes], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0, 0, 80, 10), GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+  	graphics_draw_text(ctx, nombre_mes[mes], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0, 0, 72, 10), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
     
     // Pasa el int del año a letra y pinta el año
     char temp[10]  = "";
     snprintf(temp, sizeof(temp), "%d", ano);
-    graphics_draw_text(ctx, temp, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(90, 0, 50, 10), GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+    graphics_draw_text(ctx, temp, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(73, 0, 72, 10), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 
     // Pos es la columna en dónde se escribe el día de la semana.
     // Se inicia en 2 para centrar el dato en el cuadro del calendario
