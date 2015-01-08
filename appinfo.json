@@ -7,9 +7,16 @@
     "longName": "Calendario de turnos",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/icono.png",
+                "menuIcon": true,
+                "name": "IMAGEN_ICONO",
+                "type": "png"
+            }
+        ]
     },
-    "shortName": "Calendario",
+    "shortName": "Turnos",
     "uuid": "2e80dd14-227d-4423-aeb5-12ec0da49163",
     "versionCode": 1,
     "versionLabel": "1.0",

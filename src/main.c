@@ -2,8 +2,8 @@
 #include "funciones.h"  
 #include "matrizturnos.h"  
   
-#define COLOR_PRINCIPAL GColorWhite  // El color del lápiz es blanco
-#define COLOR_FONDO GColorBlack  // y el fondo, negro
+#define COLOR_PRINCIPAL GColorBlack  // El color del lápiz es blanco
+#define COLOR_FONDO GColorWhite  // y el fondo, negro
 
   
 // Matriz de turnos. Se compone de dos dimensiones. La primera marca los meses incluidos en la matrix.
@@ -39,6 +39,7 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
     // Color del fondo y color del trazo
     graphics_context_set_stroke_color(ctx, COLOR_PRINCIPAL);
     graphics_context_set_fill_color(ctx, COLOR_PRINCIPAL);
+    graphics_context_set_text_color(ctx, COLOR_PRINCIPAL);
 
     // left, top, anchura, altura
     // 144x168
