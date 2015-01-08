@@ -5,6 +5,12 @@
 #define COLOR_PRINCIPAL GColorBlack  // El color del lápiz es blanco
 #define COLOR_FONDO GColorWhite  // y el fondo, negro
 
+#define FUENTE FONT_KEY_GOTHIC_14
+#define FUENTE_BOLD FONT_KEY_GOTHIC_14_BOLD
+  
+#define FUENTE_GRANDE FONT_KEY_GOTHIC_18
+#define FUENTE_GRANDE_BOLD FONT_KEY_GOTHIC_18_BOLD
+
   
 // Matriz de turnos. Se compone de dos dimensiones. La primera marca los meses incluidos en la matrix.
 // Si hay 4 meses de turnos, MESES_TURNOS será 4. Cada turno se marca entre corchetes, como elemento de 
@@ -66,21 +72,21 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
     graphics_fill_rect(ctx, GRect(142, 30, 1, 120), 0, GCornerNone); 
 
     // Se pinta la cabecera con los días de la semana
-		graphics_draw_text(ctx, "L", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(2, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-		graphics_draw_text(ctx, "M", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(22, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-		graphics_draw_text(ctx, "X", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(42, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-		graphics_draw_text(ctx, "J", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(62, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-		graphics_draw_text(ctx, "V", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(82, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-		graphics_draw_text(ctx, "S", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(102, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
- 		graphics_draw_text(ctx, "D", fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(122, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+		graphics_draw_text(ctx, "L", fonts_get_system_font(FUENTE_GRANDE_BOLD), GRect(2, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+		graphics_draw_text(ctx, "M", fonts_get_system_font(FUENTE_GRANDE_BOLD), GRect(22, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+		graphics_draw_text(ctx, "X", fonts_get_system_font(FUENTE_GRANDE_BOLD), GRect(42, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+		graphics_draw_text(ctx, "J", fonts_get_system_font(FUENTE_GRANDE_BOLD), GRect(62, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+		graphics_draw_text(ctx, "V", fonts_get_system_font(FUENTE_GRANDE_BOLD), GRect(82, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+		graphics_draw_text(ctx, "S", fonts_get_system_font(FUENTE_GRANDE_BOLD), GRect(102, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+ 		graphics_draw_text(ctx, "D", fonts_get_system_font(FUENTE_GRANDE_BOLD), GRect(122, 28, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
     
     // Pinta el nombre del mes
-  	graphics_draw_text(ctx, nombre_mes[mes], fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(0, 0, 72, 10), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  	graphics_draw_text(ctx, nombre_mes[mes], fonts_get_system_font(FUENTE_GRANDE_BOLD), GRect(0, 0, 72, 10), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
     
     // Pasa el int del año a letra y pinta el año
     char temp[10]  = "";
     snprintf(temp, sizeof(temp), "%d", ano);
-    graphics_draw_text(ctx, temp, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(73, 0, 72, 10), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, temp, fonts_get_system_font(FUENTE_GRANDE_BOLD), GRect(73, 0, 72, 10), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 
     // Pos es la columna en dónde se escribe el día de la semana.
     // Se inicia en 2 para centrar el dato en el cuadro del calendario
@@ -137,9 +143,9 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
         // A continuación se comprueba si el día del bucle es el día actual. En caso afirmativo, se pinta
         // ese día en negrita
         if (((i-casilla_salida+1)==dia_actual) && (mes==mes_actual))
-          graphics_draw_text(ctx, (chkturnos==1)?turnos[posicion_turno][i-casilla_salida+2]:str_dias, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+          graphics_draw_text(ctx, (chkturnos==1)?turnos[posicion_turno][i-casilla_salida+2]:str_dias, fonts_get_system_font(FUENTE_BOLD), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
         else
-          graphics_draw_text(ctx, (chkturnos==1)?turnos[posicion_turno][i-casilla_salida+2]:str_dias, fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+          graphics_draw_text(ctx, (chkturnos==1)?turnos[posicion_turno][i-casilla_salida+2]:str_dias, fonts_get_system_font(FUENTE), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
         }
       // Se suma 20 a pos para saltar al siguiente cuadro y se continúa el bucle
       pos = pos+20;
