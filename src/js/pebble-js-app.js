@@ -5,8 +5,9 @@ function HTTPGET(url) {
 	return req.responseText;
 }
 
-var getWeather = function() {
-  var response = HTTPGET("https://dl.dropboxusercontent.com/u/119376/data.dat.txt");
+var ObtenDatos = function() {
+  var response = HTTPGET("https://dl.dropboxusercontent.com/u/119376/data.dat");
+  console.log(response);
 
 	var json = JSON.parse(response);
 	var data0 = json.main.data0;
@@ -37,7 +38,6 @@ Pebble.addEventListener("ready",
 
 Pebble.addEventListener("appmessage",
   function(e) {
-	//Watch wants new data!
-	getWeather();
+	ObtenDatos();
   }
 );

@@ -1,10 +1,7 @@
 #include "pebble.h"
 #include "funciones.h"  
-//#include "matrizturnos.h"  
   
-  
-#define MESES_TURNOS 8
-  
+#define MESES_TURNOS 20
   
 #define COLOR_PRINCIPAL GColorBlack  // El color del lápiz es blanco
 #define COLOR_FONDO GColorWhite  // y el fondo, negro
@@ -15,20 +12,13 @@
 #define FUENTE_GRANDE FONT_KEY_GOTHIC_18
 #define FUENTE_GRANDE_BOLD FONT_KEY_GOTHIC_18_BOLD
 
-int turnos[20][33];
+int turnos[MESES_TURNOS][33];
 int total_turnos=0;
 int cargando=0;
 
 static const char *nombre_turno[9] = 
 	{"vacio", "M", "T", "AM", "AT", "L", "FM", "FT", "D"};
 
-// Matriz de turnos. Se compone de dos dimensiones. La primera marca los meses incluidos en la matrix.
-// Si hay 4 meses de turnos, MESES_TURNOS será 4. Cada turno se marca entre corchetes, como elemento de 
-// la matriz. 
-// La segunda dimensión son los días (o elementos de la matriz MESES_TURNOS). Se compone de 33 elementos.
-// Estos 33 elementos son la suma de los días máximos del mes (31) junto con dos valores iniciales correspondientes
-// al año y al mes al que pertenece la matriz de turnos. Estos valores se usarán más adelante para saber si el
-// mes seleccionado consta de matriz de turnos o no.
 
 
 // Matriz básica para transformar el número de mes en el nombre del mes.
@@ -57,16 +47,16 @@ void anade_datos(const char* input, int mes)
       memset(dest, 0, 6);
       subString (input, 0, 2, dest); 
       dias = atoi(dest);
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "Dias %s. En número es %i", dest, atoi(dest));    
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Dias %s. En número es %i", dest, atoi(dest));    
           
       memset(dest, 0, 6);
       subString (input, 2, 4, dest);
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "Año %s", dest); 
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Año %s", dest); 
       turnos[mes][0]=atoi(dest);
 
       memset(dest, 0, 6);
       subString (input, 6, 2, dest);
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "Mes %s", dest);  
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Mes %s", dest);  
       turnos[mes][1]=atoi(dest);
 
   
@@ -74,7 +64,7 @@ void anade_datos(const char* input, int mes)
         {
           memset(dest, 0, 6);
           subString (input, x, 1, dest);
-          APP_LOG(APP_LOG_LEVEL_DEBUG, "Valor %i: %s", x-7,dest);  
+          //APP_LOG(APP_LOG_LEVEL_DEBUG, "Valor %i: %s", x-7,dest);  
           turnos[mes][y]=atoi(dest);
           y++;
       }
@@ -84,7 +74,7 @@ void anade_datos(const char* input, int mes)
 
 void process_tuple(Tuple *t)
 {
-	int key = t->key;
+  int key = t->key;
 	char string_value[64];
   memset(string_value, 0, 64);
 	strcpy(string_value, t->value->cstring);
@@ -138,9 +128,9 @@ void process_tuple(Tuple *t)
 
 }
 
-static void in_received_handler(DictionaryIterator *iter, void *context) 
+void in_received_handler(DictionaryIterator *iter, void *context) 
 {
-	(void) context;
+  (void) context;
 	Tuple *t = dict_read_first(iter);
 	while(t != NULL)
 	{
@@ -149,6 +139,8 @@ static void in_received_handler(DictionaryIterator *iter, void *context)
 	}
   cargando=0;
   chkturnos=1;
+  vibes_short_pulse();
+
   layer_mark_dirty(CapaLineas);
 
 }
@@ -305,25 +297,6 @@ void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   else
     chkturnos=1;
   layer_mark_dirty(CapaLineas);
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Valor de chkturnos: %i", chkturnos);    
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Valor turnos 0 1, %i", turnos[0][1]);    
-  
-  /*
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------");     
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 0: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[0][0], turnos[0][1], turnos[0][2], turnos[0][6]);     
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------");     
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 1: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[1][0], turnos[1][1], turnos[1][2], turnos[1][6]);  
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------");     
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 2: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[2][0], turnos[2][1], turnos[2][2], turnos[2][6]);  
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------");   
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 3: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[3][0], turnos[3][1], turnos[3][2], turnos[3][6]);  
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------"); 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 4: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[4][0], turnos[4][1], turnos[4][2], turnos[4][6]);  
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------"); 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 5: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[5][0], turnos[5][1], turnos[5][2], turnos[5][6]);  
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------"); 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Total: %i", total_turnos); 
-  */
 
   // Se usa el select para cambiar entre calendario normal y de turnos
 }
