@@ -8,6 +8,8 @@ import sys
 import calendar
 import urllib
 import os
+from os.path import expanduser
+
 
 print("Iniciando script...")
 if os.path.isfile("ShiftCal.db"):
@@ -75,12 +77,15 @@ cadena = "{\"main\": {" + cadena
 #print (cadena)
 
 # Se crea el archivo y se pinta todo
-if os.path.isfile("data.dat"):
+home = expanduser("~")
+if os.path.isfile(home + "/Dropbox/Public/data.dat"):
     print("Eliminando versiones anteriores")
-    os.remove("data.dat")
-file = open("data.dat", "w")
+    os.remove(home + "/Dropbox/Public/data.dat")
+file = open(home + "/Dropbox/Public/data.dat", "w")
 file.write(cadena+"\n")
-print ("Archivo \"data.dat\" creado.")
+print ("Archivo \"" +home + "/Dropbox/Public/data.dat creado.")
+
+
 
 # Todo lo siguiente es código de depuración que no sirve para nada. Por eso se queda así.
 #print row[1][4:6], row[1][6:8], row[18], row[19]
