@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "funciones.h"
 
+
   
 // Este código no es mío, así que poco puedo comentar. El caso es que funciona perfectamente.
 // Sacado de: http://www.codecodex.com/wiki/Calculate_the_number_of_days_in_a_month#C.2FC.2B.2B  
@@ -9,7 +10,7 @@ int numero_de_dias(int month, int year)
   
   int numberOfDays;  
   if (month == 4 || month == 6 || month == 9 || month == 11)  
-  numberOfDays = 30;  
+    numberOfDays = 30;  
   else if (month == 2)  
   { 
     bool isLeapYear = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);  
@@ -47,3 +48,27 @@ int dweek(int year, int month, int day)
     h = h % 7;
     return conv[h];
    }
+
+
+void send_int(int key, int cmd)
+{
+	DictionaryIterator *iter;
+ 	app_message_outbox_begin(&iter);
+ 	
+ 	Tuplet value = TupletInteger(key, cmd);
+ 	dict_write_tuplet(iter, &value);
+ 	
+ 	app_message_outbox_send();
+}
+
+char* subString (const char* input, int offset, int len, char* dest)
+{
+  int input_len = strlen (input);
+  if (offset + len > input_len)
+  {
+     return NULL;
+  }
+  strncpy (dest, input + offset, len);
+  return dest;
+}
+

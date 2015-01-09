@@ -1,6 +1,10 @@
 #include "pebble.h"
 #include "funciones.h"  
-#include "matrizturnos.h"  
+//#include "matrizturnos.h"  
+  
+  
+#define MESES_TURNOS 8
+  
   
 #define COLOR_PRINCIPAL GColorBlack  // El color del lápiz es blanco
 #define COLOR_FONDO GColorWhite  // y el fondo, negro
@@ -11,7 +15,13 @@
 #define FUENTE_GRANDE FONT_KEY_GOTHIC_18
 #define FUENTE_GRANDE_BOLD FONT_KEY_GOTHIC_18_BOLD
 
-  
+int turnos[20][33];
+int total_turnos=0;
+int cargando=0;
+
+static const char *nombre_turno[9] = 
+	{"vacio", "M", "T", "AM", "AT", "L", "FM", "FT", "D"};
+
 // Matriz de turnos. Se compone de dos dimensiones. La primera marca los meses incluidos en la matrix.
 // Si hay 4 meses de turnos, MESES_TURNOS será 4. Cada turno se marca entre corchetes, como elemento de 
 // la matriz. 
@@ -38,6 +48,110 @@ static Window *window;
 //Capas del reloj
 Layer *CapaLineas; // La capa principal donde se dibuja el calendario
 
+void anade_datos(const char* input, int mes)
+  {
+      total_turnos++;
+      int y = 2;
+      char dest[6];
+      int dias; 
+      memset(dest, 0, 6);
+      subString (input, 0, 2, dest); 
+      dias = atoi(dest);
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Dias %s. En número es %i", dest, atoi(dest));    
+          
+      memset(dest, 0, 6);
+      subString (input, 2, 4, dest);
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Año %s", dest); 
+      turnos[mes][0]=atoi(dest);
+
+      memset(dest, 0, 6);
+      subString (input, 6, 2, dest);
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Mes %s", dest);  
+      turnos[mes][1]=atoi(dest);
+
+  
+      for (int x=8;x<dias+8;x++)
+        {
+          memset(dest, 0, 6);
+          subString (input, x, 1, dest);
+          APP_LOG(APP_LOG_LEVEL_DEBUG, "Valor %i: %s", x-7,dest);  
+          turnos[mes][y]=atoi(dest);
+          y++;
+      }
+}
+
+
+
+void process_tuple(Tuple *t)
+{
+	int key = t->key;
+	char string_value[64];
+  memset(string_value, 0, 64);
+	strcpy(string_value, t->value->cstring);
+	switch(key) {
+		case 0:
+      anade_datos(string_value, 0);    
+			break;
+		case 1:
+      anade_datos(string_value, 1);    
+			break;
+		case 2:
+      anade_datos(string_value, 2);
+			break;
+		case 3:
+      anade_datos(string_value, 3);
+			break;
+		case 4:
+      anade_datos(string_value, 4);
+			break;
+		case 5:
+      anade_datos(string_value, 5);
+			break;
+		case 6:
+      anade_datos(string_value, 6);
+			break;
+		case 7:
+      anade_datos(string_value, 7);
+			break;
+		case 8:
+      anade_datos(string_value, 8);
+			break;
+		case 9:
+      anade_datos(string_value, 9);
+			break;
+		case 10:
+      anade_datos(string_value, 10);
+			break;
+		case 11:
+      anade_datos(string_value, 11);
+			break;
+		case 12:
+      anade_datos(string_value, 12);
+			break;
+		case 13:
+      anade_datos(string_value, 13);
+			break;
+		case 14:
+      anade_datos(string_value, 14);
+			break;
+  }
+
+}
+
+static void in_received_handler(DictionaryIterator *iter, void *context) 
+{
+	(void) context;
+	Tuple *t = dict_read_first(iter);
+	while(t != NULL)
+	{
+		process_tuple(t);
+		t = dict_read_next(iter);
+	}
+  cargando=0;
+  chkturnos=1;
+  layer_mark_dirty(CapaLineas);
+
+}
 
 // Esta función se ejecutará cada vez que se refresque la CapaLineas
 void CapaLineas_update_callback(Layer *me, GContext* ctx) 
@@ -50,6 +164,13 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
     // left, top, anchura, altura
     // 144x168
   
+    if (cargando == 1) 
+    	{
+      graphics_draw_text(ctx, "Cargando...", fonts_get_system_font(FONT_KEY_GOTHIC_28), GRect(0, 0, 140, 30), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+      }
+  
+    else
+    {  
     // Se pintan las líneas de calendario
     
     // Lineas horizontales
@@ -126,7 +247,7 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
       for (int bucle_matrix=0;bucle_matrix<MESES_TURNOS;bucle_matrix++)
         {
         // Se comparan las primeras posiciones de la matriz TURNOS para ver si el año y el mes existen
-        if ((strcmp(turnos[bucle_matrix][0],temp_ano) == 0) && (strcmp(turnos[bucle_matrix][1],temp_mes) == 0))
+        if ((turnos[bucle_matrix][0] == ano) && (turnos[bucle_matrix][1] == mes))
           // Si existe, se guarda la posicion de ese turno con respecto a la matriz (para dibujarlo luego)
           posicion_turno = bucle_matrix;
         }
@@ -140,17 +261,21 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
         // en el calendario
         char str_dias[10];
         snprintf(str_dias, 10, "%i",i-casilla_salida+1);  
+        
+        char str_turnos[10];
+        snprintf(str_turnos, 10, "%i",turnos[posicion_turno][i-casilla_salida+2]);  
         // A continuación se comprueba si el día del bucle es el día actual. En caso afirmativo, se pinta
         // ese día en negrita
         if (((i-casilla_salida+1)==dia_actual) && (mes==mes_actual))
-          graphics_draw_text(ctx, (chkturnos==1)?turnos[posicion_turno][i-casilla_salida+2]:str_dias, fonts_get_system_font(FUENTE_BOLD), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+          graphics_draw_text(ctx, (chkturnos==1)?nombre_turno[turnos[posicion_turno][i-casilla_salida+2]]:str_dias, fonts_get_system_font(FUENTE_BOLD), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
         else
-          graphics_draw_text(ctx, (chkturnos==1)?turnos[posicion_turno][i-casilla_salida+2]:str_dias, fonts_get_system_font(FUENTE), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+          graphics_draw_text(ctx, (chkturnos==1)?nombre_turno[turnos[posicion_turno][i-casilla_salida+2]]:str_dias, fonts_get_system_font(FUENTE), GRect(pos, linea, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
         }
       // Se suma 20 a pos para saltar al siguiente cuadro y se continúa el bucle
       pos = pos+20;
 
   }
+  }  // OJO, este es el cierre del if de cargando
 
 }  // Y termina la función
 
@@ -161,23 +286,50 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
         {
         mes = 12;
         ano--;
-      }
+        }
   layer_mark_dirty(CapaLineas);
   // Se resta un mes al actual y si el mes es inferior a 1, se resta un año
 }
 
+void long_select_click_handler(ClickRecognizerRef recognizer, void *context) {
+  cargando=1;
+  send_int(5, 5);
+  layer_mark_dirty(CapaLineas);
+
+}
+
 // Se pulsa el botón select
-static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
+void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   if (chkturnos==1)
     chkturnos=0;
   else
     chkturnos=1;
   layer_mark_dirty(CapaLineas);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Valor de chkturnos: %i", chkturnos);    
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Valor turnos 0 1, %i", turnos[0][1]);    
+  
+  /*
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------");     
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 0: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[0][0], turnos[0][1], turnos[0][2], turnos[0][6]);     
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------");     
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 1: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[1][0], turnos[1][1], turnos[1][2], turnos[1][6]);  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------");     
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 2: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[2][0], turnos[2][1], turnos[2][2], turnos[2][6]);  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------");   
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 3: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[3][0], turnos[3][1], turnos[3][2], turnos[3][6]);  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------"); 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 4: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[4][0], turnos[4][1], turnos[4][2], turnos[4][6]);  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------"); 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Dato 5: Año: %i. Mes: %i. Primer dato %i, último dato: %i", turnos[5][0], turnos[5][1], turnos[5][2], turnos[5][6]);  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "-----------------------------------------------"); 
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Total: %i", total_turnos); 
+  */
+
   // Se usa el select para cambiar entre calendario normal y de turnos
 }
 
 // Se pulsa el botón abajo
-static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
+void down_click_handler(ClickRecognizerRef recognizer, void *context) {
       mes++;
       if (mes==13) 
         {
@@ -189,19 +341,23 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
 }
 
 // Se definen las funciones asociadas a la pulsación de botones
-static void click_config_provider(void *context) {
+void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
+  window_long_click_subscribe(BUTTON_ID_SELECT, 700 , long_select_click_handler, NULL);
   window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
-
-
 }
 
 static void init() 
 {
   window = window_create();
   window_set_click_config_provider(window, click_config_provider);
+  //Register AppMessage events
+	app_message_register_inbox_received(in_received_handler);					 
+	app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());		
+  //Largest possible input and output buffer sizes
 
+  
   window_stack_push(window, true /* Animado */);
   window_set_background_color(window, COLOR_FONDO);
   Layer *window_layer = window_get_root_layer(window);
@@ -225,8 +381,8 @@ static void init()
   ano = tick_time->tm_year+1900;
   
   // Se establece chkturnos a 1 para mostrar el calendario de turnos en primer lugar. Si es 0, se muestran los días
-  chkturnos=1;
-  
+  chkturnos=0;
+
   // Línea de DEBUG, por si acaso. Debe estar desactivada siempre que sea posible
   //APP_LOG(APP_LOG_LEVEL_DEBUG, "El primer dia del mes %i, del año %i es %i", mes, ano, dweek(ano,mes,dia));    
 
