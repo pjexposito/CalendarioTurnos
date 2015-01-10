@@ -7,7 +7,7 @@ function HTTPGET(url) {
 
 var ObtenDatos = function() {
   var response = HTTPGET("https://dl.dropboxusercontent.com/u/119376/data.dat");
-  //console.log(response);
+  console.log(response);
 
 	var json = JSON.parse(response);
 	var data0 = json.main.data0;
