@@ -1,25 +1,7 @@
 #include "pebble.h"
 #include "funciones.h"
 
-#define MESES_TURNOS 20
 
-#define LINEA_HORIZONTAL_INICIAL 30
-#define LINEA_HORIZONTAL 17
-
-#define LINEA_VERTICAL_INICIAL 2
-#define LINEA_VERTICAL 20
-
-#define COLOR_PRINCIPAL GColorBlack  // El color del lápiz es blanco
-#define COLOR_FONDO GColorWhite  // y el fondo, negro
-
-#define FUENTE FONT_KEY_GOTHIC_18
-#define FUENTE_BOLD FONT_KEY_GOTHIC_18_BOLD
-
-#define FUENTE_GRANDE FONT_KEY_GOTHIC_18
-#define FUENTE_GRANDE_BOLD FONT_KEY_GOTHIC_18_BOLD
-
-int turnos[MESES_TURNOS][33];
-int total_turnos=0;
 int cargando=0;
 
 static const char *nombre_turno[9] =
@@ -32,10 +14,7 @@ static const char *nombre_mes[13] =
 { "vacio", "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre",
     "noviembre", "diciembre" };
 
-// Se define de forma global las variables día, mes y año (dado que pueden cambiar a lo largo de la ejecución)
-// Mes_actual y dia_actual siempre guardarán el valor del día y el mes en el que se ejecuta el programa (no varían)
-// La variable chkturnos puede tener valor 1 si se muestra el calendario de turnos y valor 0 si se muestra el de días.
-int dia, mes, ano, mes_actual, dia_actual, chkturnos;
+
 
 // Ventana principal
 static Window *window;
@@ -44,60 +23,7 @@ static Window *window;
 //Capas del reloj
 Layer *CapaLineas; // La capa principal donde se dibuja el calendario
 
-void anade_datos(const char* input, int mes)
-{
-    total_turnos++;
-    int y = 2;
-    char dest[6];
-    int dias;
-    memset(dest, 0, 6);
-    subString (input, 0, 2, dest);
-    dias = atoi(dest);
-    //APP_LOG(APP_LOG_LEVEL_DEBUG, "Dias %s. En número es %i", dest, atoi(dest));
-    
-    memset(dest, 0, 6);
-    subString (input, 2, 4, dest);
-    //APP_LOG(APP_LOG_LEVEL_DEBUG, "Año %s", dest);
-    turnos[mes][0]=atoi(dest);
-    
-    memset(dest, 0, 6);
-    subString (input, 6, 2, dest);
-    //APP_LOG(APP_LOG_LEVEL_DEBUG, "Mes %s", dest);
-    turnos[mes][1]=atoi(dest);
-    
-    
-    for (int x=8;x<dias+8;x++)
-    {
-        memset(dest, 0, 6);
-        subString (input, x, 1, dest);
-        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Valor %i: %s", x-7,dest);
-        turnos[mes][y]=atoi(dest);
-        y++;
-    }
-}
 
-void carga_datos()
-{
-    
-    char username[64];
-    persist_read_string(0, username, sizeof(username));
-    if (strcmp(username, "")==0)
-    {
-        chkturnos=1;
-    }
-    else
-    {
-      for (int x=0;x<MESES_TURNOS;x++)
-      {
-        memset(username, 0, 64);
-        persist_read_string(x, username, sizeof(username));
-        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Acabo de añadir %s", username);
-        anade_datos(username, x);
-        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Los datos son %i, %i, %i", turnos[x][0], turnos[x][1], turnos[x][2]);
-      }
-
-    }
-}
 
 
 
@@ -107,70 +33,10 @@ void process_tuple(Tuple *t)
     char string_value[64];
     memset(string_value, 0, 64);
     strcpy(string_value, t->value->cstring);
-    switch(key) {
-        case 0:
-            anade_datos(string_value, 0);
-            persist_write_string(0, string_value);
-            break;
-        case 1:
-            anade_datos(string_value, 1);
-            persist_write_string(1, string_value);
-            break;
-        case 2:
-            anade_datos(string_value, 2);
-            persist_write_string(2, string_value);
-            break;
-        case 3:
-            anade_datos(string_value, 3);
-            persist_write_string(3, string_value);
-            break;
-        case 4:
-            anade_datos(string_value, 4);
-            persist_write_string(4, string_value);
-            break;
-        case 5:
-            anade_datos(string_value, 5);
-            persist_write_string(5, string_value);
-            break;
-        case 6:
-            anade_datos(string_value, 6);
-            persist_write_string(6, string_value);
-            break;
-        case 7:
-            anade_datos(string_value, 7);
-            persist_write_string(7, string_value);
-            break;
-        case 8:
-            anade_datos(string_value, 8);
-            persist_write_string(8, string_value);
-            break;
-        case 9:
-            anade_datos(string_value, 9);
-            persist_write_string(9, string_value);
-            break;
-        case 10:
-            anade_datos(string_value, 10);
-            persist_write_string(10, string_value);
-            break;
-        case 11:
-            anade_datos(string_value, 11);
-            persist_write_string(11, string_value);
-            break;
-        case 12:
-            anade_datos(string_value, 12);
-            persist_write_string(12, string_value);
-            break;
-        case 13:
-            anade_datos(string_value, 13);
-            persist_write_string(13, string_value);
-            break;
-        case 14:
-            anade_datos(string_value, 14);
-            persist_write_string(14, string_value);
-            break;
-    }
-    
+    anade_datos(string_value, key);
+    persist_write_string(key, string_value);
 }
+
 
 void in_received_handler(DictionaryIterator *iter, void *context)
 {
@@ -184,9 +50,7 @@ void in_received_handler(DictionaryIterator *iter, void *context)
     cargando=0;
     chkturnos=1;
     vibes_short_pulse();
-    
     layer_mark_dirty(CapaLineas);
-    
 }
 
 // Esta función se ejecutará cada vez que se refresque la CapaLineas
@@ -196,7 +60,6 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
     graphics_context_set_stroke_color(ctx, COLOR_PRINCIPAL);
     graphics_context_set_fill_color(ctx, COLOR_PRINCIPAL);
     graphics_context_set_text_color(ctx, COLOR_PRINCIPAL);
-    
     // left, top, anchura, altura
     // 144x168
     
@@ -204,13 +67,8 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
     {
         graphics_draw_text(ctx, "Cargando...", fonts_get_system_font(FONT_KEY_GOTHIC_28), GRect(0, 0, 140, 30), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
     }
-    
     else
     {
-
-        
-
-        
         // Se pinta la cabecera con los días de la semana
         graphics_draw_text(ctx, "L", fonts_get_system_font(FUENTE_GRANDE_BOLD), GRect(2, 27, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
         graphics_draw_text(ctx, "M", fonts_get_system_font(FUENTE_GRANDE_BOLD), GRect(22, 27, 20, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
@@ -237,7 +95,6 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
         int casilla_salida = dweek(ano,mes,dia)-1;
         // nueva_fila indica si el mes tiene 5 o 6 filas. Si es igual a 0, tiene 5, si es 1, tiene 6.
         int nueva_fila = 0;
-        int fila_inicial = 0;
         
         // Recorre todos los días del mes para dibujar el calendario
         for (int i = 0; i < numero_de_dias(mes,ano)+casilla_salida; ++i) {
@@ -255,7 +112,6 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
                 linea = 132;
             }
 
-            
             // Si es la última columna, vuelve al principio
             if (pos>122) pos = 2;
             
@@ -314,10 +170,7 @@ void CapaLineas_update_callback(Layer *me, GContext* ctx)
         // Lineas verticales
         for (int x=0; x<8;x++)
             graphics_fill_rect(ctx, GRect(LINEA_VERTICAL_INICIAL+(x*LINEA_VERTICAL), 30, 1, ((6+nueva_fila)*LINEA_HORIZONTAL)+2), 0, GCornerNone);
-        
-       
-        
-        
+
     }  // OJO, este es el cierre del if de cargando
     
 }  // Y termina la función
@@ -336,6 +189,8 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 void long_select_click_handler(ClickRecognizerRef recognizer, void *context) {
     cargando=1;
+    for (int x=0;x<MESES_TURNOS;x++)      
+      persist_delete(x);
     send_int(5, 5);
     layer_mark_dirty(CapaLineas);
     

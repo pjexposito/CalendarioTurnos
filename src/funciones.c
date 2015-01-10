@@ -1,7 +1,5 @@
 #include <pebble.h>
 #include "funciones.h"
-
-
   
 // Este código no es mío, así que poco puedo comentar. El caso es que funciona perfectamente.
 // Sacado de: http://www.codecodex.com/wiki/Calculate_the_number_of_days_in_a_month#C.2FC.2B.2B  
@@ -72,3 +70,56 @@ char* subString (const char* input, int offset, int len, char* dest)
   return dest;
 }
 
+void anade_datos(const char* input, int mes)
+{
+    int y = 2;
+    char dest[6];
+    int dias;
+    memset(dest, 0, 6);
+    subString (input, 0, 2, dest);
+    dias = atoi(dest);
+    //APP_LOG(APP_LOG_LEVEL_DEBUG, "Dias %s. En número es %i", dest, atoi(dest));
+    
+    memset(dest, 0, 6);
+    subString (input, 2, 4, dest);
+    //APP_LOG(APP_LOG_LEVEL_DEBUG, "Año %s", dest);
+    turnos[mes][0]=atoi(dest);
+    
+    memset(dest, 0, 6);
+    subString (input, 6, 2, dest);
+    //APP_LOG(APP_LOG_LEVEL_DEBUG, "Mes %s", dest);
+    turnos[mes][1]=atoi(dest);
+    
+    
+    for (int x=8;x<dias+8;x++)
+    {
+        memset(dest, 0, 6);
+        subString (input, x, 1, dest);
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Valor %i: %s", x-7,dest);
+        turnos[mes][y]=atoi(dest);
+        y++;
+    }
+}
+
+
+void carga_datos()
+{
+    
+    char username[64];
+    persist_read_string(0, username, sizeof(username));
+    if (strcmp(username, "")==0)
+    {
+        chkturnos=1;
+    }
+    else
+    {
+      for (int x=0;x<MESES_TURNOS;x++)
+      {
+        memset(username, 0, 64);
+        persist_read_string(x, username, sizeof(username));
+        if (strcmp(username, "")!=0)
+          anade_datos(username, x);
+      }
+
+    }
+}
